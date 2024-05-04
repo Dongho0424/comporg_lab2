@@ -31,6 +31,9 @@ module simple_cpu
 wire [DATA_WIDTH-1:0] if_pc_plus_4;
 wire [DATA_WIDTH-1:0] if_instruction;
 
+// flush
+wire ifid_flush;
+
 ////////////////
 // ### ID ### //
 ////////////////
@@ -60,6 +63,9 @@ wire id_alusrc;
 
 // signed extended immediate
 wire [DATA_WIDTH-1:0] id_sextimm;
+
+// flush
+wire idex_flush;
 
 ////////////////
 // ### EX ### //
@@ -98,6 +104,9 @@ wire [DATA_WIDTH-1:0] ex_alu_in_b_temp;
 // forwarding
 wire [1:0] forward_a;
 wire [1:0] forward_b;
+
+// flush
+wire exmem_flush;
 
 
 ////////////////
@@ -177,6 +186,7 @@ instruction_memory m_instruction_memory(
 /* forward to IF/ID stage registers */
 ifid_reg m_ifid_reg(
   // TODO: Add flush or stall signal if it is needed
+  .flush          (ifid_flush),
   .clk            (clk),
   .if_PC          (PC),
   .if_pc_plus_4   (if_pc_plus_4),
@@ -195,6 +205,10 @@ ifid_reg m_ifid_reg(
 /* m_hazard: hazard detection unit */
 hazard m_hazard(
   // TODO: implement hazard detection unit & do wiring
+  .taken (mem_taken),
+  .ifid_flush (ifid_flush),
+  .idex_flush (idex_flush),
+  .exmem_flush (exmem_flush)
 );
 
 // instruction fields
@@ -245,6 +259,7 @@ register_file m_register_file(
 /* forward to ID/EX stage registers */
 idex_reg m_idex_reg(
   // TODO: Add flush or stall signal if it is needed
+  .flush        (idex_flush),
   .clk          (clk),
   .id_PC        (id_PC),
   .id_pc_plus_4 (id_pc_plus_4),
@@ -382,6 +397,7 @@ forwarding m_forwarding(
 /* forward to EX/MEM stage registers */
 exmem_reg m_exmem_reg(
   // TODO: Add flush or stall signal if it is needed
+  .flush          (exmem_flush),
   .clk            (clk),
   .ex_pc_plus_4   (ex_pc_plus_4),
   .ex_pc_target   (ex_pc_target), 

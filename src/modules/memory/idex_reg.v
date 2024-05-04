@@ -6,6 +6,7 @@ module idex_reg #(
   parameter DATA_WIDTH = 32
 )(
   // TODO: Add flush or stall signal if it is needed
+  input flush,
 
   //////////////////////////////////////
   // Inputs
@@ -70,28 +71,46 @@ module idex_reg #(
 
 // \TODO: Implement ID/EX pipeline register module
 always @(posedge clk) begin
-  ex_PC <= id_PC;
-  ex_pc_plus_4 <= id_pc_plus_4;
-
-  ex_jump <= id_jump;
-  ex_branch <= id_branch;
-  ex_aluop <= id_aluop;
-  ex_alusrc <= id_alusrc;
-
-  ex_memread <= id_memread;
-  ex_memwrite <= id_memwrite;
-
-  ex_memtoreg <= id_memtoreg;
-  ex_regwrite <= id_regwrite;
-
-  ex_sextimm <= id_sextimm;
-  ex_funct7 <= id_funct7;
-  ex_funct3 <= id_funct3;
-  ex_readdata1 <= id_readdata1;
-  ex_readdata2 <= id_readdata2;
-  ex_rs1 <= id_rs1;
-  ex_rs2 <= id_rs2;
-  ex_rd <= id_rd;   
+  if (flush) begin
+    ex_PC <= 32'b0;
+    ex_pc_plus_4 <= 32'b0;
+    ex_branch <= 32'b0;
+    ex_aluop <= 32'b0;
+    ex_alusrc <= 32'b0;
+    ex_jump <= 32'b0;
+    ex_memread <= 32'b0;
+    ex_memwrite <= 32'b0;
+    ex_memtoreg <= 32'b0;
+    ex_regwrite <= 32'b0;
+    ex_sextimm <= 32'b0;
+    ex_funct7 <= 32'b0;
+    ex_funct3 <= 32'b0;
+    ex_readdata1 <= 32'b0;
+    ex_readdata2 <= 32'b0;
+    ex_rs1 <= 32'b0;
+    ex_rs2 <= 32'b0;
+    ex_rd <= 32'b0;
+  end
+  else begin
+    ex_PC <= id_PC;
+    ex_pc_plus_4 <= id_pc_plus_4;
+    ex_branch <= id_branch;
+    ex_aluop <= id_aluop;
+    ex_alusrc <= id_alusrc;
+    ex_jump <= id_jump;
+    ex_memread <= id_memread;
+    ex_memwrite <= id_memwrite;
+    ex_memtoreg <= id_memtoreg;
+    ex_regwrite <= id_regwrite;
+    ex_sextimm <= id_sextimm;
+    ex_funct7 <= id_funct7;
+    ex_funct3 <= id_funct3;
+    ex_readdata1 <= id_readdata1;
+    ex_readdata2 <= id_readdata2;
+    ex_rs1 <= id_rs1;
+    ex_rs2 <= id_rs2;
+    ex_rd <= id_rd;
+  end  
 end
 
 endmodule

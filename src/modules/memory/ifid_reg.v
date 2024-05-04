@@ -7,6 +7,8 @@ module ifid_reg #(
 )(
   // TODO: Add flush or stall signal if it is needed
 
+  input flush,
+
   //////////////////////////////////////
   // Inputs
   //////////////////////////////////////
@@ -26,9 +28,16 @@ module ifid_reg #(
 
 // \TODO: Implement IF/ID pipeline register module
 always @(posedge clk) begin
-  id_PC <= if_PC;
-  id_pc_plus_4 <= if_pc_plus_4;
-  id_instruction <= if_instruction;
+  if (flush) begin
+    id_PC <= 32'b0;
+    id_pc_plus_4 <= 32'b0;
+    id_instruction <= 32'b0;
+  end
+  else begin
+    id_PC <= if_PC;
+    id_pc_plus_4 <= if_pc_plus_4;
+    id_instruction <= if_instruction;
+  end
 end  
 
 endmodule
