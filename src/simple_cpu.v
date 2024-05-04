@@ -93,6 +93,11 @@ wire [DATA_WIDTH-1:0] ex_alu_result;
 wire [3:0] ex_alu_func;
 wire [DATA_WIDTH-1:0] ex_alu_in_a;
 wire [DATA_WIDTH-1:0] ex_alu_in_b;
+wire [DATA_WIDTH-1:0] ex_alu_in_b_temp;
+
+// forwarding
+wire [1:0] forward_a;
+wire [1:0] forward_b;
 
 
 ////////////////
@@ -325,27 +330,53 @@ alu_control m_alu_control(
   .alu_func (ex_alu_func)
 );
 
-// mux 2x1 for alu in_b source
-mux_2x1 m_alu_src_mux(
-  .select  (ex_alusrc),
-  .in1  (ex_readdata2),
-  .in2  (ex_sextimm),
-
-  .out  (ex_alu_in_b)
-);
-
 /* m_alu */
 alu m_alu(
   .alu_func (ex_alu_func),
-  .in_a     (ex_readdata1), 
+  .in_a     (ex_alu_in_a), 
   .in_b     (ex_alu_in_b), 
 
   .result   (ex_alu_result),
   .check    (ex_check)
 );
 
+// mux 2x1 for alu in_b source
+mux_2x1 m_alu_src_mux(
+  .select  (ex_alusrc),
+  .in1  (ex_alu_in_b_temp),
+  .in2  (ex_sextimm),
+
+  .out  (ex_alu_in_b)
+);
+
+// alu sources regarding forwarding
+mux_3x1 m_forward_a_mux(
+  .select  (forward_a),
+  .in1  (ex_readdata1),
+  .in2  (mem_alu_result),
+  .in3  (wb_writedata),
+
+  .out  (ex_alu_in_a)
+);
+
+mux_3x1 m_forward_b_mux(
+  .select  (forward_b),
+  .in1  (ex_readdata2),
+  .in2  (mem_alu_result),
+  .in3  (wb_writedata),
+
+  .out  (ex_alu_in_b_temp)
+);
+
 forwarding m_forwarding(
-  // TODO: implement forwarding unit & do wiring
+  .ex_rs1       (ex_rs1),
+  .ex_rs2       (ex_rs2),
+  .mem_regwrite (mem_regwrite),
+  .mem_rd       (mem_rd),
+  .wb_regwrite  (wb_regwrite),
+  .wb_rd        (wb_rd),
+  .forward_a    (forward_a),
+  .forward_b    (forward_b)
 );
 
 /* forward to EX/MEM stage registers */
@@ -353,8 +384,8 @@ exmem_reg m_exmem_reg(
   // TODO: Add flush or stall signal if it is needed
   .clk            (clk),
   .ex_pc_plus_4   (ex_pc_plus_4),
-  .ex_pc_target   (ex_pc_target), //TODO  이걸 왜 줄까?
-  .ex_taken       (ex_taken),     //TODO  이걸 왜 줄까?
+  .ex_pc_target   (ex_pc_target), 
+  .ex_taken       (ex_taken),     
   .ex_jump        (ex_jump),
   .ex_memread     (ex_memread),
   .ex_memwrite    (ex_memwrite),
@@ -366,8 +397,8 @@ exmem_reg m_exmem_reg(
   .ex_rd          (ex_rd),
   
   .mem_pc_plus_4  (mem_pc_plus_4),
-  .mem_pc_target  (mem_pc_target), //TODO  이걸 왜 줄까?
-  .mem_taken      (mem_taken),     //TODO  이걸 왜 줄까?
+  .mem_pc_target  (mem_pc_target), 
+  .mem_taken      (mem_taken),     
   .mem_jump       (mem_jump),
   .mem_memread    (mem_memread),
   .mem_memwrite   (mem_memwrite),

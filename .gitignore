@@ -4,3 +4,4 @@ simple_cpu
 data/*
 .DS_Store
 *.gtkw
+playground.py
