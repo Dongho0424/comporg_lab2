@@ -8,6 +8,7 @@ module ifid_reg #(
   // TODO: Add flush or stall signal if it is needed
 
   input flush,
+  input ifid_write,
 
   //////////////////////////////////////
   // Inputs
@@ -33,11 +34,12 @@ always @(posedge clk) begin
     id_pc_plus_4 <= 32'b0;
     id_instruction <= 32'b0;
   end
-  else begin
+  else if (ifid_write) begin
     id_PC <= if_PC;
     id_pc_plus_4 <= if_pc_plus_4;
     id_instruction <= if_instruction;
   end
+  // else: stall
 end  
 
 endmodule

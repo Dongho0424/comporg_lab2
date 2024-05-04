@@ -34,6 +34,9 @@ wire [DATA_WIDTH-1:0] if_instruction;
 // flush
 wire ifid_flush;
 
+// stall
+wire pc_write;
+
 ////////////////
 // ### ID ### //
 ////////////////
@@ -66,6 +69,9 @@ wire [DATA_WIDTH-1:0] id_sextimm;
 
 // flush
 wire idex_flush;
+
+// stall
+wire ifid_write;
 
 ////////////////
 // ### EX ### //
@@ -108,6 +114,8 @@ wire [1:0] forward_b;
 // flush
 wire exmem_flush;
 
+// stall
+wire idex_write;
 
 ////////////////
 // ### MEM ### //
@@ -173,7 +181,10 @@ always @(posedge clk) begin
   if (rstn == 1'b0) begin
     PC <= 32'h00000000;
   end
-  else PC <= NEXT_PC;
+  else if (pc_write) begin
+    PC <= NEXT_PC;
+  end
+  // else: stall
 end
 
 /* instruction: read current instruction from inst mem */
@@ -187,6 +198,7 @@ instruction_memory m_instruction_memory(
 ifid_reg m_ifid_reg(
   // TODO: Add flush or stall signal if it is needed
   .flush          (ifid_flush),
+  .ifid_write     (ifid_write),
   .clk            (clk),
   .if_PC          (PC),
   .if_pc_plus_4   (if_pc_plus_4),
@@ -205,10 +217,19 @@ ifid_reg m_ifid_reg(
 /* m_hazard: hazard detection unit */
 hazard m_hazard(
   // TODO: implement hazard detection unit & do wiring
+  .rstn (rstn),
   .taken (mem_taken),
+  .id_rs1 (id_rs1),
+  .id_rs2 (id_rs2),
+  .ex_rd (ex_rd),
+  .ex_memread (ex_memread),
+
   .ifid_flush (ifid_flush),
   .idex_flush (idex_flush),
-  .exmem_flush (exmem_flush)
+  .exmem_flush (exmem_flush),
+  .pc_write (pc_write),
+  .ifid_write (ifid_write),
+  .idex_write (idex_write)
 );
 
 // instruction fields
@@ -260,6 +281,7 @@ register_file m_register_file(
 idex_reg m_idex_reg(
   // TODO: Add flush or stall signal if it is needed
   .flush        (idex_flush),
+  .idex_write   (idex_write),
   .clk          (clk),
   .id_PC        (id_PC),
   .id_pc_plus_4 (id_pc_plus_4),
@@ -408,7 +430,7 @@ exmem_reg m_exmem_reg(
   .ex_memtoreg    (ex_memtoreg),
   .ex_regwrite    (ex_regwrite),
   .ex_alu_result  (ex_alu_result),
-  .ex_writedata   (ex_readdata2),
+  .ex_writedata   (ex_alu_in_b_temp),
   .ex_funct3      (ex_funct3),
   .ex_rd          (ex_rd),
   
@@ -464,6 +486,12 @@ memwb_reg m_memwb_reg(
   .wb_alu_result  (wb_alu_result),
   .wb_rd          (wb_rd)
 );
+
+// FIXME: delete
+wire [DATA_WIDTH-1:0] mem_pc;
+assign mem_pc = mem_pc_plus_4 - 32'h0000_0004;
+wire [DATA_WIDTH-1:0] wb_pc;
+assign wb_pc = wb_pc_plus_4 - 32'h0000_0004;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Write Back (WB) 

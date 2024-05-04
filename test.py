@@ -12,10 +12,10 @@ tests = [
           [ 'task4/1', 'data/task4/1/inst_disassembled.mem', 'data/task4/1/reg-out.mem' ],
           [ 'task4/2', 'data/task4/2/inst_disassembled.mem', 'data/task4/2/reg-out.mem' ],
           [ 'task5/1', 'data/task5/1/inst_disassembled.mem', 'data/task5/1/reg-out.mem' ],
-        #   [ 'task6/1', 'data/task6/1/inst_disassembled.mem', 'data/task6/1/reg-out.mem' ],
-        #   [ 'task6/2', 'data/task6/2/inst_disassembled.mem', 'data/task6/2/reg-out.mem' ],
-        #   [ 'fibo/1',  'data/fibo/1/inst_disassembled.mem',  'data/fibo/1/reg-out.mem' ],
-        #   [ 'sum/1',   'data/sum/1/inst_disassembled.mem',   'data/sum/1/reg-out.mem' ]
+          [ 'task6/1', 'data/task6/1/inst_disassembled.mem', 'data/task6/1/reg-out.mem' ],
+          [ 'task6/2', 'data/task6/2/inst_disassembled.mem', 'data/task6/2/reg-out.mem' ],
+          [ 'fibo/1',  'data/fibo/1/inst_disassembled.mem',  'data/fibo/1/reg-out.mem' ],
+          [ 'sum/1',   'data/sum/1/inst_disassembled.mem',   'data/sum/1/reg-out.mem' ]
         ]
 
 def get_ans_reg(path_to_reg):
@@ -77,8 +77,7 @@ def main():
             os.system("rm ./data/inst.mem ./data/stat.out")
         else:
             print("------ [failed] -----")
-            # TODO: 원상복귀
-            # os.system("cat ./data/stat.out")
+            os.system("cat ./data/stat.out")
             break
 
 

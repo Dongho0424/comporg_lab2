@@ -7,6 +7,7 @@ module idex_reg #(
 )(
   // TODO: Add flush or stall signal if it is needed
   input flush,
+  input idex_write,
 
   //////////////////////////////////////
   // Inputs
@@ -91,7 +92,7 @@ always @(posedge clk) begin
     ex_rs2 <= 32'b0;
     ex_rd <= 32'b0;
   end
-  else begin
+  else if (idex_write) begin 
     ex_PC <= id_PC;
     ex_pc_plus_4 <= id_pc_plus_4;
     ex_branch <= id_branch;
@@ -111,6 +112,16 @@ always @(posedge clk) begin
     ex_rs2 <= id_rs2;
     ex_rd <= id_rd;
   end  
+  else begin // stall. All control signals become zero.
+    ex_branch <= 32'b0;
+    ex_aluop <= 32'b0;
+    ex_alusrc <= 32'b0;
+    ex_jump <= 32'b0;
+    ex_memread <= 32'b0;
+    ex_memwrite <= 32'b0;
+    ex_memtoreg <= 32'b0;
+    ex_regwrite <= 32'b0;
+  end
 end
 
 endmodule
