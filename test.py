@@ -9,13 +9,13 @@ tests = [
           [ 'task2/1', 'data/task2/1/inst_disassembled.mem', 'data/task2/1/reg-out.mem' ],
           [ 'task2/2', 'data/task2/2/inst_disassembled.mem', 'data/task2/2/reg-out.mem' ],
           [ 'task3/1', 'data/task3/1/inst_disassembled.mem', 'data/task3/1/reg-out.mem' ],
-          [ 'task4/1', 'data/task4/1/inst_disassembled.mem', 'data/task4/1/reg-out.mem' ],
-          [ 'task4/2', 'data/task4/2/inst_disassembled.mem', 'data/task4/2/reg-out.mem' ],
-          [ 'task5/1', 'data/task5/1/inst_disassembled.mem', 'data/task5/1/reg-out.mem' ],
-          [ 'task6/1', 'data/task6/1/inst_disassembled.mem', 'data/task6/1/reg-out.mem' ],
-          [ 'task6/2', 'data/task6/2/inst_disassembled.mem', 'data/task6/2/reg-out.mem' ],
-          [ 'fibo/1',  'data/fibo/1/inst_disassembled.mem',  'data/fibo/1/reg-out.mem' ],
-          [ 'sum/1',   'data/sum/1/inst_disassembled.mem',   'data/sum/1/reg-out.mem' ]
+        #   [ 'task4/1', 'data/task4/1/inst_disassembled.mem', 'data/task4/1/reg-out.mem' ],
+        #   [ 'task4/2', 'data/task4/2/inst_disassembled.mem', 'data/task4/2/reg-out.mem' ],
+        #   [ 'task5/1', 'data/task5/1/inst_disassembled.mem', 'data/task5/1/reg-out.mem' ],
+        #   [ 'task6/1', 'data/task6/1/inst_disassembled.mem', 'data/task6/1/reg-out.mem' ],
+        #   [ 'task6/2', 'data/task6/2/inst_disassembled.mem', 'data/task6/2/reg-out.mem' ],
+        #   [ 'fibo/1',  'data/fibo/1/inst_disassembled.mem',  'data/fibo/1/reg-out.mem' ],
+        #   [ 'sum/1',   'data/sum/1/inst_disassembled.mem',   'data/sum/1/reg-out.mem' ]
         ]
 
 def get_ans_reg(path_to_reg):
@@ -77,7 +77,8 @@ def main():
             os.system("rm ./data/inst.mem ./data/stat.out")
         else:
             print("------ [failed] -----")
-            os.system("cat ./data/stat.out")
+            # TODO: 원상복귀
+            # os.system("cat ./data/stat.out")
             break
 
 

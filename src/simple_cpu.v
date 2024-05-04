@@ -40,7 +40,7 @@ wire [DATA_WIDTH-1:0] id_pc_plus_4;
 wire [DATA_WIDTH-1:0] id_instruction;
 
 // from register file 
-wire [DATA_WIDTH:0] readdata1, readdata2;
+wire [DATA_WIDTH-1:0] id_readdata1, id_readdata2;
 
 // 5 bits for each (because there exist 32 registers)
 wire [4:0] id_rs1, id_rs2, id_rd;
@@ -57,7 +57,6 @@ wire id_memtoreg;
 wire [1:0] id_aluop;
 wire id_memwrite;
 wire id_alusrc;
-wire id_reg_write;
 
 // signed extended immediate
 wire [DATA_WIDTH-1:0] id_sextimm;
@@ -90,7 +89,7 @@ wire [DATA_WIDTH-1:0] ex_pc_target;
 wire ex_temp_taken;
 wire ex_taken;
 wire ex_check;
-wire ex_alu_result;
+wire [DATA_WIDTH-1:0] ex_alu_result;
 wire [3:0] ex_alu_func;
 wire [DATA_WIDTH-1:0] ex_alu_in_a;
 wire [DATA_WIDTH-1:0] ex_alu_in_b;
@@ -128,7 +127,7 @@ wire [DATA_WIDTH-1:0] wb_alu_result;
 wire [4:0] wb_rd;        
 
 // for RF write 
-wire [DATA_WIDTH-1:0] RF_writedata; 
+wire [DATA_WIDTH-1:0] wb_writedata; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Instruction Fetch (IF)
@@ -149,9 +148,9 @@ adder m_pc_plus_4_adder(
 // next_pc 
 // 2x1 mux
 mux_2x1 m_next_pc_mux(
-  .sel  (id_jump),
-  .in0  (if_pc_plus_4),
-  .in1  (id_sextimm),
+  .select  (mem_taken),
+  .in1  (if_pc_plus_4),
+  .in2  (mem_pc_target),
 
   .out  (NEXT_PC)
 );
@@ -165,9 +164,9 @@ end
 
 /* instruction: read current instruction from inst mem */
 instruction_memory m_instruction_memory(
-  .address    (PC),
+  .address        (PC),
 
-  .instruction(if_instruction)
+  .instruction    (if_instruction)
 );
 
 /* forward to IF/ID stage registers */
@@ -194,15 +193,15 @@ hazard m_hazard(
 );
 
 // instruction fields
-assign opcode = id_instruction[6:0];
+assign id_opcode = id_instruction[6:0];
 
-assign funct7 = id_instruction[31:25];
-assign funct3 = id_instruction[14:12];
+assign id_funct7 = id_instruction[31:25];
+assign id_funct3 = id_instruction[14:12];
 
 // R type
-assign rs1 = id_instruction[19:15];
-assign rs2 = id_instruction[24:20];
-assign rd  = id_instruction[11:7];
+assign id_rs1 = id_instruction[19:15];
+assign id_rs2 = id_instruction[24:20];
+assign id_rd  = id_instruction[11:7];
 
 /* m_control: control unit */
 control m_control(
@@ -215,7 +214,7 @@ control m_control(
   .mem_read   (id_memread),
   .mem_to_reg (id_memtoreg),
   .mem_write  (id_memwrite),
-  .reg_write  (id_reg_write)
+  .reg_write  (id_regwrite)
 );
 
 /* m_imm_generator: immediate generator */
@@ -232,7 +231,7 @@ register_file m_register_file(
   .readreg2   (id_rs2),
   .writereg   (wb_rd),
   .wen        (wb_regwrite),
-  .writedata  (RF_writedata),
+  .writedata  (wb_writedata),
 
   .readdata1  (id_readdata1),
   .readdata2  (id_readdata2)
@@ -296,11 +295,11 @@ adder m_branch_target_adder(
 // get pc_target
 // 4x1 mux
 mux_4x1 m_pc_target_mux(
-  .sel  (ex_jump),
-  .in0  (32'h0000_0000), // dummy
-  .in1  (ex_pc_plus_offset),
+  .select  (ex_jump),
+  .in1  (32'h0000_0000), // dummy
   .in2  (ex_pc_plus_offset),
-  .in3  (ex_alu_result)
+  .in3  (ex_pc_plus_offset),
+  .in4  (ex_alu_result),
 
   .out  (ex_pc_target)
 );
@@ -328,9 +327,9 @@ alu_control m_alu_control(
 
 // mux 2x1 for alu in_b source
 mux_2x1 m_alu_src_mux(
-  .sel  (ex_alusrc),
-  .in0  (ex_readdata2),
-  .in1  (ex_sextimm),
+  .select  (ex_alusrc),
+  .in1  (ex_readdata2),
+  .in2  (ex_sextimm),
 
   .out  (ex_alu_in_b)
 );
@@ -426,13 +425,13 @@ memwb_reg m_memwb_reg(
 // 4x1 mux to select RF_write data
 
 mux_4x1 m_WB_mux_4x1(
-  .select({wb_memtoreg, wb_jump[1]}),
-  .in1(wb_alu_result), // R-type, I-type
-  .in2(wb_pc_plus_4), // jal, jalr
-  .in3(wb_readdata), // load
-  .in4(32'h0000_0000), // dummy
-
-  .out(RF_writedata)
+  .select ({wb_memtoreg, wb_jump[1]}),
+  .in1    (wb_alu_result), // R-type, I-type
+  .in2    (wb_pc_plus_4), // jal, jalr
+  .in3    (wb_readdata), // load
+  .in4    (32'h0000_0000), // dummy
+    
+  .out    (wb_writedata)
 );
 
 

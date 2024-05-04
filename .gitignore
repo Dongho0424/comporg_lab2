@@ -3,3 +3,4 @@ sim.vcd
 simple_cpu
 data/*
 .DS_Store
+*.gtkw
