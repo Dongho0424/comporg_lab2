@@ -17,7 +17,7 @@ module simple_cpu
 );
 
 ///////////////////////////////////////////////////////////////////////////////
-// TODO:  Declare all wires / registers that are needed
+// \TODO:  Declare all wires / registers that are needed
 ///////////////////////////////////////////////////////////////////////////////
 // e.g., wire [DATA_WIDTH-1:0] if_pc_plus_4;
 // 1) Pipeline registers (wires to / from pipeline register modules)
@@ -196,7 +196,6 @@ instruction_memory m_instruction_memory(
 
 /* forward to IF/ID stage registers */
 ifid_reg m_ifid_reg(
-  // TODO: Add flush or stall signal if it is needed
   .flush          (ifid_flush),
   .ifid_write     (ifid_write),
   .clk            (clk),
@@ -216,7 +215,6 @@ ifid_reg m_ifid_reg(
 
 /* m_hazard: hazard detection unit */
 hazard m_hazard(
-  // TODO: implement hazard detection unit & do wiring
   .rstn (rstn),
   .taken (mem_taken),
   .id_rs1 (id_rs1),
@@ -279,7 +277,6 @@ register_file m_register_file(
 
 /* forward to ID/EX stage registers */
 idex_reg m_idex_reg(
-  // TODO: Add flush or stall signal if it is needed
   .flush        (idex_flush),
   .idex_write   (idex_write),
   .clk          (clk),
@@ -418,7 +415,7 @@ forwarding m_forwarding(
 
 /* forward to EX/MEM stage registers */
 exmem_reg m_exmem_reg(
-  // TODO: Add flush or stall signal if it is needed
+  // \TODO: Add flush or stall signal if it is needed
   .flush          (exmem_flush),
   .clk            (clk),
   .ex_pc_plus_4   (ex_pc_plus_4),
@@ -468,7 +465,7 @@ data_memory m_data_memory(
 
 /* forward to MEM/WB stage registers */
 memwb_reg m_memwb_reg(
-  // TODO: Add flush or stall signal if it is needed
+  // \TODO: Add flush or stall signal if it is needed
   .clk            (clk),
   .mem_pc_plus_4  (mem_pc_plus_4),
   .mem_jump       (mem_jump),
@@ -486,12 +483,6 @@ memwb_reg m_memwb_reg(
   .wb_alu_result  (wb_alu_result),
   .wb_rd          (wb_rd)
 );
-
-// FIXME: delete
-wire [DATA_WIDTH-1:0] mem_pc;
-assign mem_pc = mem_pc_plus_4 - 32'h0000_0004;
-wire [DATA_WIDTH-1:0] wb_pc;
-assign wb_pc = wb_pc_plus_4 - 32'h0000_0004;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Write Back (WB) 

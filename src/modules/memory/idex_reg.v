@@ -5,7 +5,7 @@
 module idex_reg #(
   parameter DATA_WIDTH = 32
 )(
-  // TODO: Add flush or stall signal if it is needed
+  // \TODO: Add flush or stall signal if it is needed
   input flush,
   input idex_write,
 
